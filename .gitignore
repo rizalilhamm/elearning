@@ -1,3 +1,5 @@
 __pycache__
 .vscode
 venv
+note.txt
+app.db

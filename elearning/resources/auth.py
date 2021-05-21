@@ -57,7 +57,7 @@ class SignupResource(Resource):
             )
 
         # except Exception as e:
-            # return jsonify({"message": "Masih ada yang salah"})
+            # return jsonify({"message": "Masih ada yang salah"})   
 
 class LoginResource(Resource):
     def post(self):
