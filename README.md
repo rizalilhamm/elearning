@@ -27,9 +27,9 @@ include Register, Login, Logout
 ### Class Service
 Get All Class
 ```base
-    127.0.0.1:5000/classes
+127.0.0.1:5000/classes
 ```
 Get a particular Class
 ```base
-    127.0.0.1:5000/classes/<int:id>
+127.0.0.1:5000/classes/<int:id>
 ```
