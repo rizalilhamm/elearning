@@ -3,6 +3,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate
 
 from elearning.config import Config
 
@@ -10,6 +11,7 @@ elearning = Flask(__name__)
 elearning.config.from_object(Config)
 login = LoginManager(elearning)
 db = SQLAlchemy(elearning)
+migrate = Migrate(elearning, db)
 api = Api(elearning)
 
 from elearning.resources.routes import initialize_routes

@@ -30,7 +30,7 @@ class Class(db.Model):
     __tablename__ = 'classes'
     class_id = db.Column(db.Integer, primary_key=True)
     classname = db.Column(db.String(128),unique=True)
-    users = db.relationship("User", secondary=user_identifier)
+    users = db.relationship("User", secondary=user_identifier, backref=db.backref('classes', lazy='dynamic'))
 
     def __repr__(self):
         return self.classname

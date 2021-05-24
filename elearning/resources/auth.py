@@ -82,7 +82,7 @@ class LoginResource(Resource):
 
 class LogoutResource(Resource):
     @login_required
-    def post(self):
+    def get(self):
         logout_user()
         return jsonify(
             {
