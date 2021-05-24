@@ -1,10 +1,9 @@
-import json
 from flask import jsonify, request
 from flask_restful import Resource
 from flask_login import current_user, login_required
 
 from elearning import db
-from elearning.models import User, Class
+from elearning.models import User, Class    
 
 class Classroom(Resource):
     @login_required
@@ -30,9 +29,9 @@ class classroomSelect(Resource):
     
     @login_required
     def put(self, id):
-        if current_user.user_level == 2:
+        if current_user.user_level > 1:
             return jsonify({
-                "Message": "Access denied!",
+                "Message": "Access denied",
             })
         new_classname = request.form['new_classname']
         s_class = Class.query.filter_by(class_id=id).first()
