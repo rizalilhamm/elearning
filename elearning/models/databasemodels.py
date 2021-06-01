@@ -8,6 +8,7 @@ user_identifier = db.Table(
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
 )
 
+
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -26,11 +27,23 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return self.firstname
 
+
 class Class(db.Model):
     __tablename__ = 'classes'
     class_id = db.Column(db.Integer, primary_key=True)
     classname = db.Column(db.String(128),unique=True)
+    tasks = db.relationship("Tasks", backref='classes', lazy=True)
     users = db.relationship("User", secondary=user_identifier, backref=db.backref('classes', lazy='dynamic'))
 
     def __repr__(self):
         return self.classname
+
+
+class Tasks(db.Model):
+    task_id = db.Column(db.Integer, primary_key=True)
+    task_title = db.Column(db.String(200), unique=True)
+    task_desc = db.Column(db.Text)
+    class_id = db.Column(db.Integer, db.ForeignKey('classes.class_id'), nullable=False)
+
+    def __repr__(self):
+        return self.task_title
