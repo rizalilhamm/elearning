@@ -33,3 +33,17 @@ Get a particular Class
 ```base
 127.0.0.1:5000/classes/<int:id>
 ```
+
+### Tasks Service
+Lecture access:
+Create, Update and Delete a pasticular Task
+Student access:
+Get Tasks
+
+Get All Tasks or a particular Class
+```bash
+127.0.0.1:5000/classes/<int:id>/tasks
+```
+```bash
+127.0.0.1:5000/classes/<int:id>/tasks
+```
