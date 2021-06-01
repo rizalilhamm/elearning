@@ -46,5 +46,5 @@ Get All Tasks or a particular Class
 127.0.0.1:5000/classes/<int:id>/tasks
 ```
 ```bash
-127.0.0.1:5000/classes/<int:id>/tasks
+127.0.0.1:5000/classes/<int:id>/tasks/<int:index>
 ```
