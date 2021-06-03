@@ -3,4 +3,4 @@ __pycache__
 venv
 note.txt
 app.db
-uploads/
+uploads/ 
