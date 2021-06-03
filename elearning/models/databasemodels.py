@@ -43,6 +43,7 @@ class Tasks(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
     task_title = db.Column(db.String(200), unique=True)
     task_desc = db.Column(db.Text)
+    answered_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     class_id = db.Column(db.Integer, db.ForeignKey('classes.class_id'), nullable=False)
 
     def __repr__(self):
