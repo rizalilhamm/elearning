@@ -1,6 +1,6 @@
 from .auth import LogoutResource, SignupResource, LoginResource
-from .classroom.views import ClassroomsResource, ClassroomResource
-from .tasks.views import TasksResource, TaskResource
+from .classroom import ClassroomsResource, ClassroomResource
+from .tasks import TasksResource, TaskResource
 
 def initialize_routes(api):
     # Authentication Service
