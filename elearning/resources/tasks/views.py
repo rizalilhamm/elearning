@@ -82,43 +82,80 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.split('.')[1].lower() in ALLOWED_EXTENTIONS
 
+def validate_student_task(class_id, task):
+    """ if student has submit his task this will return your answer file """
+    
+    current_class = Class.query.get(class_id)
+    path = elearning.config['UPLOAD_FOLDER'] + '/uploads/{}'.format(current_user.lastname).lower()
+    files = []
+    for x in os.listdir(path):
+        if x.endswith('.pdf'):
+            files.append(x)
+    
+    your_answer = None
+    for file in files:
+        if file == secure_filename('{}-{}-{}.pdf'.format(current_class, task, current_user.firstname)):
+            your_answer = file
+            break
+            
+    
+    return your_answer
+
 class TaskResource(Resource):
     def post(self, class_id, index):
         # The method for Student to Post their task
-        if validate_student(current_user.user_level):
-            if 'file' not in request.files:
+        if index > len(Tasks.query.filter_by(class_id=class_id).all()):
+            return "Index out of range"
+
+        s_class = Class.query.get(class_id)
+        s_task = Tasks.query.filter_by(task_title=str(s_class.tasks[index-1])).first()
+        if validate_student(current_user.user_level) and (validate_student_task(class_id, s_task) == None):
+            if request.method == 'POST':
+
+                if 'file' not in request.files:
+                    return jsonify({
+                        'Message': 'All field are required',
+                        'Status': 400
+                    })
+
+                file = request.files['file']
+                if file.filename == '':
+                    return jsonify({
+                        'Message': 'No file selected',
+                        'Status': 400
+                    })
+
+                if file and allowed_file(file.filename):
+                    target = elearning.config['UPLOAD_FOLDER'] + '/uploads/{}'.format(str(current_user.lastname).lower())
+                    file_extention = '.{}'.format(file.filename.split('.')[1].lower())
+
+                    if not os.path.isdir(target):
+                        os.makedirs(target)
+
+                    filename = secure_filename('{}-{}'.format(s_class.classname + '-' + s_task.task_title, str(current_user.firstname)) + file_extention)
+                    file.save(os.path.join(target, filename))
+                   
+                    s_task.answered_by = current_user.firstname + ' ' + current_user.lastname
+                    db.session.commit()
+                   
+                    return jsonify({
+                        'Message': 'Task Uploaded by {}'.format(current_user.firstname)
+                    })
+
                 return jsonify({
-                    'Message': 'All field are required',
-                    'Status': 400
+                    'Message': 'File not allowed!',
                 })
-
-            file = request.files['file']
-            if file.filename == '':
-                return jsonify({
-                    'Message': 'No file selected',
-                    'Status': 400
-                })
-
-            if file and allowed_file(file.filename):
-                target = elearning.config['UPLOAD_FOLDER'] + '/uploads/{}'.format(current_user.lastname)
-                s_class = Class.query.get(class_id)
-                s_task = s_class.tasks[index-1]
-                file_extention = '.{}'.format(file.filename.split('.')[1].lower())
-
-                if not os.path.isdir(target):
-                    os.makedirs(target)
-
-                filename = secure_filename('{}-{}'.format(s_class.classname, str(current_user.firstname)) + file_extention)
-                file.save(os.path.join(target, filename))
-                return jsonify({
-                    'Message': 'Uploaded!'
-                })
-
-            return jsonify({
-                'Message': 'File not allowed!',
-            })
         else:
-            pass
+            message = None
+            if validate_lecture(current_user.user_level):
+                message = 'Only Student can upload the task response'
+            elif validate_student_task(class_id, s_task) != None:
+                message = 'You have submit your task'
+            
+            return jsonify({
+                'Message': message,
+                'Status': 400
+            })
 
     @login_required
     def put(self, class_id, index):
@@ -155,6 +192,7 @@ class TaskResource(Resource):
                 127.0.0.1:5000/classes/<int:class_id>/tasks/<int:index>
             return:
                 Get a pasticular task """
+        
         tasks = Tasks.query.filter_by(class_id=class_id).all()
         if index > len(tasks):
             return jsonify({
@@ -162,10 +200,21 @@ class TaskResource(Resource):
                 'Status': 404
             })
         task = tasks[index-1]
-        return jsonify({
-            'Task': str(task),
-            'Task Description': str(task.task_desc)
-        })
+        
+        your_answer = validate_student_task(class_id, task)
+        
+        
+        if your_answer != None:
+            return jsonify({
+                'Task Status': 'Submitted!',
+                'Terkumpul': your_answer,
+                'Task': str(task),
+                'Task Description': str(task.task_desc)
+            })
+        else:
+            return jsonify({
+                'Message': 'Anda belum menyelesaikan tugas'
+            })
         
     def delete(self, task_id):
         pass
