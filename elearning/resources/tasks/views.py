@@ -203,17 +203,27 @@ class TaskResource(Resource):
         
         your_answer = validate_student_task(class_id, task)
         
-        
-        if your_answer != None:
-            return jsonify({
-                'Task Status': 'Submitted!',
-                'Terkumpul': your_answer,
-                'Task': str(task),
-                'Task Description': str(task.task_desc)
-            })
+        message = None
+        if validate_student(current_user.user_level):
+            if your_answer != None:
+                message = 'Submitted!'
+                return jsonify({
+                    'Message': message,
+                    'Terkumpul': your_answer,
+                    'Task': str(task),
+                    'Task Description': str(task.task_desc)
+                })
+            else:
+                message = 'Submit your task'
+                return jsonify({
+                    'Message': message,
+                    'Task': str(task)
+                })
         else:
+            message = 'Edit task'
             return jsonify({
-                'Message': 'Anda belum menyelesaikan tugas'
+                'Message': message,
+                'Task': str(task) 
             })
         
     def delete(self, task_id):
