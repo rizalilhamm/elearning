@@ -8,6 +8,9 @@ from elearning.resources.errors import SchemaValidationError
 
 def validate_lecture(user_level):
     return user_level < 2
+
+def validate_student(user_level):
+    return user_level == 2
 class ClassroomsResource(Resource):
     @login_required
     def post(self):
@@ -15,12 +18,12 @@ class ClassroomsResource(Resource):
         return:
             tell user the class created! """
         if validate_lecture(current_user.user_level):
-            if request.method == "POST":
+            if request.method == 'POST':
                 new_classname = request.form['new_classname']
                 if Class.query.filter_by(classname=new_classname).first():
                     return jsonify({
-                        "Message": "Class is available",
-                        "Status": 400
+                        'Message': 'Class is available',
+                        'Status': 400
                     })
                 new_class = Class(classname=new_classname)
                 new_class.users.append(current_user)
@@ -28,13 +31,13 @@ class ClassroomsResource(Resource):
                 db.session.commit()
 
                 return jsonify({
-                    "Message": "Class created", 
-                    "Status": 201
+                    'Message': 'Class created', 
+                    'Status': 201
                 })
         else:
             return jsonify({
-                "Message": "Only admin or lecture can Create a new Class",
-                "Status": 403
+                'Message': 'Only admin or lecture can Create a new Class',
+                'Status': 403
             })
 
     @login_required
@@ -46,34 +49,34 @@ class ClassroomsResource(Resource):
         if len(cu_classes) > 0:
             message = cu_classes
         else:
-            message = "You have no Class yet"
+            message = 'You have no Class yet'
         
         return jsonify({
-            "Classes": message
+            'Classes': message
         })
     
 
 class ClassroomResource(Resource):
     @login_required
-    def get(self, id):
-        s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=id).first()
+    def get(self, class_id):
+        s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         if s_class is None:
-            return  jsonify({
-                "Message": "Class not Found",
-                "Status": 404
-            })
+            class_id = list(current_user.classes)[0].class_id
+            s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         return jsonify({
-            "Classname": str(s_class),
+            'Classname': str(s_class),
         })
     
     @login_required
-    def put(self, id):
+    def put(self, class_id):
         if validate_lecture(current_user.user_level):
-            s_class = Class.query.filter_by(class_id=id).first()
+            # s_class = Class.query.filter_by(class_id=class_id).first()
+            s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
+
             if s_class is None:
                     return jsonify({
-                        "Message": "class Not found",
-                        "Status": 404
+                        'Message': 'Class Not found',
+                        'Status': 404
                     })
             if request.method == 'PUT':
                 if 'new_classname' not in request.form:
@@ -88,24 +91,14 @@ class ClassroomResource(Resource):
                         'Status': 400
                     }) 
 
-                new_student_email = request.form['new_student_email']
-                student = User.query.filter_by(email=new_student_email).first()
-                if not student:
-                    return jsonify({
-                        'Message': 'Student with {} not found'.format(new_student_email),
-                        'Status': 400
-                    })
-                
-                s_class.users.append(student)
-
                 s_class.classname = new_classname
                 db.session.commit()
 
                 return jsonify({
-                      "Message": 'Classname updated to {}'.format(str(s_class.classname))
+                      'Message': 'Classname updated to \'{}\''.format(str(s_class.classname))
                 })
         else:
             return jsonify({
-                "Message": "Only Admin or lecture can update the class",
-                "Status": 403
+                'Message': 'Only Admin or lecture can update the class',
+                'Status': 403
             })

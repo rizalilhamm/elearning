@@ -10,6 +10,6 @@ def initialize_routes(api):
 
     # Class Service
     api.add_resource(ClassroomsResource, '/classes')
-    api.add_resource(ClassroomResource, '/classes/<int:id>')
+    api.add_resource(ClassroomResource, '/classes/<int:class_id>')
     api.add_resource(TasksResource, '/classes/<int:class_id>/tasks')
     api.add_resource(TaskResource, '/classes/<int:class_id>/tasks/<int:index>')
