@@ -8,10 +8,17 @@ from flask_restful import Resource
 from elearning import elearning, db
 from elearning.resources.errors import SchemaValidationError, ExtentionError
 from elearning.models import Class, Tasks
-from elearning.resources.classroom.views import validate_lecture
+
+def validate_lecture(user_level):
+    return user_level <= 1
 
 def validate_student(user_level):
     return user_level == 2
+
+ALLOWED_EXTENTIONS = {'pdf', 'docx'}
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.split('.')[1].lower() in ALLOWED_EXTENTIONS
 
 class TasksResource(Resource):
     @login_required
@@ -77,14 +84,9 @@ class TasksResource(Resource):
         })
 
 
-ALLOWED_EXTENTIONS = {'pdf', 'docx'}
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.split('.')[1].lower() in ALLOWED_EXTENTIONS
 
 def validate_student_task(class_id, task):
     """ if student has submit his task this will return your answer file """
-    
     current_class = Class.query.get(class_id)
     path = elearning.config['UPLOAD_FOLDER'] + '/uploads/{}'.format(current_user.lastname).lower()
     files = []
@@ -98,14 +100,13 @@ def validate_student_task(class_id, task):
             your_answer = file
             break
             
-    
     return your_answer
 
 class TaskResource(Resource):
     def post(self, class_id, index):
         # The method for Student to Post their task
         if index > len(Tasks.query.filter_by(class_id=class_id).all()):
-            return "Index out of range"
+            return 'Index out of range'
 
         s_class = Class.query.get(class_id)
         s_task = Tasks.query.filter_by(task_title=str(s_class.tasks[index-1])).first()
@@ -170,7 +171,7 @@ class TaskResource(Resource):
         if validate_lecture(current_user.user_level):
             tasks = Tasks.query.filter_by(class_id=class_id).all()
 
-            if request.method == "PUT":
+            if request.method == 'PUT':
                 new_title = request.form['new_title']
                 tasks[index-1].task_title = new_title
                 if 'new_desc' in request.form:
@@ -178,8 +179,13 @@ class TaskResource(Resource):
                 db.session.commit()
 
             return jsonify({
-                "Message": "Updated!",
-                "Result": str(tasks[index-1])
+                'Message': 'Updated!',
+                'Result': str(tasks[index-1])
+            })
+        else:
+            return jsonify({
+                'Message': 'Only admin or lecturer can update the task',
+                'Status': 400
             })
     
     @login_required
@@ -192,7 +198,6 @@ class TaskResource(Resource):
                 127.0.0.1:5000/classes/<int:class_id>/tasks/<int:index>
             return:
                 Get a pasticular task """
-        
         tasks = Tasks.query.filter_by(class_id=class_id).all()
         if index > len(tasks):
             return jsonify({
@@ -220,7 +225,7 @@ class TaskResource(Resource):
                     'Task': str(task)
                 })
         else:
-            message = 'Edit task'
+            message = 'You can update the task'
             return jsonify({
                 'Message': message,
                 'Task': str(task) 
