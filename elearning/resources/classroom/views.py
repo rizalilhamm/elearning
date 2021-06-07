@@ -54,17 +54,19 @@ class ClassroomsResource(Resource):
         return jsonify({
             'Classes': message
         })
-    
-
 class ClassroomResource(Resource):
     @login_required
     def get(self, class_id):
         s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
-        if s_class is None:
-            class_id = list(current_user.classes)[0].class_id
-            s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
+        
+        if s_class == None:
+            return jsonify({
+                'Message': 'Class not found!',
+                'Status': 400
+            })
         return jsonify({
             'Classname': str(s_class),
+            'Status': 200
         })
     
     @login_required
@@ -102,3 +104,6 @@ class ClassroomResource(Resource):
                 'Message': 'Only Admin or lecture can update the class',
                 'Status': 403
             })
+
+class TheoryResource(Resource):
+    pass
