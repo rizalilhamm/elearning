@@ -15,7 +15,6 @@ flask run
 # REST API
 The REST API Electronic Mobile Learning Described below. You can test it using Postman
 ### Authentication
-include Register, Login, Logout
 ``` base
 127.0.0.1:5000/account/register
     
@@ -23,43 +22,44 @@ include Register, Login, Logout
     
 127.0.0.1:5000/account/logout
 ```
-
+#### User access
+1. Register with institution email
+    > Lecturer (example@lecture.ar-raniry.ac.id) **(lecture after @)**
+    > Student (example@student.ar-raniry.ac.id) **(student after @)**
+2. Login with registered email
+3. Logout from system
 ### Class Service
-Get All Class
 ```base
 127.0.0.1:5000/classes
-```
-Get a particular Class
-```base
+
 127.0.0.1:5000/classes/<int:id>
 ```
+#### Lecturer access
+1. Get all classes or particular class
+2. Create new Class
+3. Update a particular classname
+4. Add new student to a particular class
+#### Student access
+1. Get all classes or particular class
 
 ### Tasks Service
-Lecture access:
-Create, Update and Delete a pasticular Task
-
-Student access:
-Get Tasks
-
-Get All Tasks or a particular Class
 ```bash
 127.0.0.1:5000/classes/<int:id>/tasks
-```
-```bash
+
 127.0.0.1:5000/classes/<int:id>/tasks/<int:index>
 ```
+#### Lecturer access
+1. Get all tasks or a particular task
+2. Create new task
+3. Update a particular task title
 
-### Class Participants
-Lecture access:
-Get and Add new student to class using email to be participant
+#### Student access
+1. Get all tasks or particular task
+2. Post Task Response (cancel not allowed after submit)
 
-Student access:
-Get all participants
-
-Get All Participants or a particular Participant
+### Class Material
 ```bash
-127.0.0.1:5000/classes/<int:id>/participants
-```
-```bash
-127.0.0.1:5000/classes/<int:id>/participants/<int:index>
-```
+127.0.0.1:5000/classes/<int:id>/new_materials
+``` 
+#### Lecturer access
+1. Post new material for a particular class
