@@ -58,7 +58,7 @@ class SignupResource(Resource):
 
             return jsonify(
                 {
-                    'Username': firstname,
+                    'Username': '{} {}'.format(firstname, lastname),
                     'Status': 200
                 }
             )
@@ -72,8 +72,7 @@ class LoginResource(Resource):
             return jsonify({
                 'Message': 'User logged in',
                 'Nim': current_user.id,
-                'Firstname': current_user.firstname,
-                'Lastname': current_user.lastname,
+                'Firstname':'{} {}'.format(current_user.firstname, current_user.lastname),
             })
 
 
