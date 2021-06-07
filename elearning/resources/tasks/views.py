@@ -84,11 +84,13 @@ class TasksResource(Resource):
         })
 
 
-
 def validate_student_task(class_id, task):
     """ if student has submit his task this will return your answer file """
     current_class = Class.query.get(class_id)
     path = elearning.config['UPLOAD_FOLDER'] + '/uploads/{}'.format(current_user.lastname).lower()
+    if not os.path.isdir(path):
+        os.mkdir(path)
+
     files = []
     for x in os.listdir(path):
         if x.endswith('.pdf'):
@@ -199,6 +201,8 @@ class TaskResource(Resource):
             return:
                 Get a pasticular task """
         tasks = Tasks.query.filter_by(class_id=class_id).all()
+        if tasks == None:
+            return 'This class has no task'
         if index > len(tasks):
             return jsonify({
                 'Message': 'you have only {} tasks in {} Class'.format(len(tasks), Class.query.get(class_id)),
@@ -206,10 +210,10 @@ class TaskResource(Resource):
             })
         task = tasks[index-1]
         
-        your_answer = validate_student_task(class_id, task)
         
         message = None
         if validate_student(current_user.user_level):
+            your_answer = validate_student_task(class_id, task)
             if your_answer != None:
                 message = 'Submitted!'
                 return jsonify({
@@ -219,7 +223,7 @@ class TaskResource(Resource):
                     'Task Description': str(task.task_desc)
                 })
             else:
-                message = 'Submit your task'
+                message = 'you do not submit your task yet'
                 return jsonify({
                     'Message': message,
                     'Task': str(task)
