@@ -6,12 +6,13 @@
 from flask import request
 from flask.json import jsonify
 from flask_restful import Resource
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from elearning import elearning, db
 from elearning.models.databasemodels import Class, User
 
 class ParticipantsResource(Resource):
+    @login_required
     def get(self, class_id):
         s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         lecturer = ''.join([str(lecture) for lecture in s_class.users if lecture.user_level == 1])
@@ -23,6 +24,7 @@ class ParticipantsResource(Resource):
             'Status': 200
         })
     
+    @login_required
     def post(self, class_id):
         s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         
