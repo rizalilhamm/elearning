@@ -1,3 +1,4 @@
+from sqlalchemy.orm import backref
 from werkzeug.security import generate_password_hash, check_password_hash
 from elearning import db
 from flask_login import UserMixin
@@ -32,12 +33,20 @@ class Class(db.Model):
     __tablename__ = 'classes'
     class_id = db.Column(db.Integer, primary_key=True)
     classname = db.Column(db.String(128),unique=True)
+    theories = db.relationship('Theory', backref='classes', lazy=True)
     tasks = db.relationship("Tasks", backref='classes', lazy=True)
     users = db.relationship("User", secondary=user_identifier, backref=db.backref('classes', lazy='dynamic'))
 
     def __repr__(self):
         return self.classname
 
+class Theory(db.Model):
+    theory_id = db.Column(db.Integer, primary_key=True)
+    theory_name = db.Column(db.String(200), unique=True)
+    class_id = db.Column(db.Integer, db.ForeignKey('classes.class_id'), nullable=False)
+
+    def __repr__(self):
+        return self.theory_name
 
 class Tasks(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
