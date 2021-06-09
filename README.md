@@ -62,4 +62,4 @@ Get All Participants or a particular Participant
 ```
 ```bash
 127.0.0.1:5000/classes/<int:id>/participants/<int:index>
-```
+```   
