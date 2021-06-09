@@ -61,7 +61,8 @@ The REST API Electronic Mobile Learning Described below. You can test it using P
 ```bash
 127.0.0.1:5000/classes/<int:id>/new_materials
 ``` 
-#### Lecturer access
+
+### Class Participants 
 ```
 1. Post new material for a particular class
 
