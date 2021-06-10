@@ -52,8 +52,13 @@ class Tasks(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
     task_title = db.Column(db.String(200), unique=True)
     task_desc = db.Column(db.Text)
-    answered_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     class_id = db.Column(db.Integer, db.ForeignKey('classes.class_id'), nullable=False)
-
+    answers = db.relationship('Answers', backref='tasks', lazy=True)
     def __repr__(self):
         return self.task_title
+
+class Answers(db.Model):
+    answer_id = db.Column(db.Integer, primary_key=True)
+    answer_title = db.Column(db.String(200), nullable=False)
+    scores = db.Column(db.String(30), default='Not checked yet')
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.task_id'), nullable=False)
