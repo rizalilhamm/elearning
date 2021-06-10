@@ -7,7 +7,7 @@ from flask_restful import Resource
 
 from elearning import elearning, db
 from elearning.resources.errors import SchemaValidationError, ExtentionError
-from elearning.models import Class, Tasks
+from elearning.models import User, Class, Tasks, Answers
 
 def validate_lecture(user_level):
     return user_level <= 1
@@ -71,7 +71,14 @@ class TasksResource(Resource):
                 127.0.0.1:5000/classes/<int:class_id>/tasks
             return:
                 All tasks will be shown if available """
-        tasks = [str(i) for i in Tasks.query.filter_by(class_id=class_id).all()] 
+        current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
+        
+        if not current_class:
+            return jsonify({
+                'Message': 'Task not found',
+                'Status': 400
+            })
+        tasks = [str(i) for i in current_class.tasks] 
         if len(tasks) < 1:
             return jsonify({
                 'Message': 'Woohoo, no work due in soon!',
@@ -136,8 +143,9 @@ class TaskResource(Resource):
 
                                 filename = secure_filename('{}-{}'.format(current_task.task_title, str(current_user.firstname)) + file_extention)
                                 file.save(os.path.join(target, filename))
-
-                                current_task.answered_by = current_user.id
+                                task_title = '{}-{}'.format(current_task.task_title, current_user.firstname + current_user.lastname)
+                                new_answer = Answers(answer_title=task_title, task_id=current_task.task_id)
+                                db.session.add(new_answer)
                                 db.session.commit()
 
                                 message = 'Task Submited by {}'.format(current_user.firstname)
@@ -148,7 +156,7 @@ class TaskResource(Resource):
             message = 'Only Student can upload the task response'
             
         else:
-            message = 'You have submit task responce'
+            message = 'You have submit task response'
         return jsonify({
             'Message': message,
             'Status': 400
@@ -194,7 +202,13 @@ class TaskResource(Resource):
                 127.0.0.1:5000/classes/<int:class_id>/tasks/<int:index>
             return:
                 Get a pasticular task """
-        tasks = Tasks.query.filter_by(class_id=class_id).all()
+        current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
+        if not current_class:
+            return jsonify({
+                'Message': 'Current class not found',
+                'Status': 400
+            })
+        tasks = current_class.tasks
         if tasks == None:
             return 'This class has no task'
         if index > len(tasks):
@@ -214,7 +228,8 @@ class TaskResource(Resource):
                     'Message': message,
                     'Terkumpul': your_answer,
                     'Task': str(task),
-                    'Task Description': str(task.task_desc)
+                    'Task Description': str(task.task_desc),
+                    'Score': str(Answers.query.get(task.task_id).scores)
                 })
             else:
                 message = 'you do not submit your task yet'
