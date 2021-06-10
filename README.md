@@ -25,6 +25,7 @@ The REST API Electronic Mobile Learning Described below. You can test it using P
 #### User access
 1. Register with institution email
     > Lecturer (example@lecture.ar-raniry.ac.id) **(lecture after @)**
+
     > Student (example@student.ar-raniry.ac.id) **(student after @)**
 2. Login with registered email
 3. Logout from system
@@ -61,11 +62,11 @@ The REST API Electronic Mobile Learning Described below. You can test it using P
 ```bash
 127.0.0.1:5000/classes/<int:id>/new_materials
 ``` 
+#### Lecture acces
+1. Post new material for a particular class
 
 ### Class Participants 
 ```
-1. Post new material for a particular class
-
 127.0.0.1:5000/classes/<int:id>/participants/<int:index>
 ```   
 #### Lecturer access
