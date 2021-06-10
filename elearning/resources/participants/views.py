@@ -16,7 +16,7 @@ class ParticipantsResource(Resource):
     def get(self, class_id):
         s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         lecturer = ''.join([str(lecture) for lecture in s_class.users if lecture.user_level == 1])
-        participants = [str(participant) for participant in s_class.users]
+        participants = [str(participant) for participant in s_class.users if participant.user_level > 1]
 
         return jsonify({
             'Lecture': lecturer,
