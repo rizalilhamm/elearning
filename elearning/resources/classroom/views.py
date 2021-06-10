@@ -60,12 +60,12 @@ class ClassroomResource(Resource):
     @login_required
     def get(self, class_id):
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
-        theories = [str(the) for the in Theory.query.filter_by(class_id=current_class.class_id).all()]    
-        if current_class == None:
+        if not current_class:
             return jsonify({
                 'Message': 'Class not found!',
                 'Status': 400
             })
+        theories = [str(the) for the in Theory.query.filter_by(class_id=current_class.class_id).all()]    
         return jsonify({
             'Classname': str(current_class),
             'Theories': theories,
