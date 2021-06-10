@@ -85,7 +85,7 @@ class TasksResource(Resource):
 
 
 def validate_student_task(class_id, task):
-    """ if student has submit his task this will return your answer file """
+    """ if student has submit his task this will return your answer file else it return None """
     current_class = Class.query.get(class_id)
     path = elearning.config['UPLOAD_FOLDER'] + '/uploads/{}'.format(current_class.classname).lower()
     if not os.path.isdir(path):
