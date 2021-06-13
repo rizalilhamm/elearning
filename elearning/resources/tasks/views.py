@@ -143,8 +143,8 @@ class TaskResource(Resource):
 
                                 filename = secure_filename('{}-{}'.format(current_task.task_title, str(current_user.firstname)) + file_extention)
                                 file.save(os.path.join(target, filename))
-                                task_title = '{}-{}'.format(current_task.task_title, current_user.firstname + current_user.lastname)
-                                new_answer = Answers(answer_title=task_title, task_id=current_task.task_id)
+                                task_title = '{}-{}'.format(current_task.task_title, current_user.firstname + " " + current_user.lastname)
+                                new_answer = Answers(answer_title=task_title, task_id=current_task.task_id, owner=current_user.id)
                                 db.session.add(new_answer)
                                 db.session.commit()
 
