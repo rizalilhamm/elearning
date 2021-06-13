@@ -72,8 +72,18 @@ The REST API Electronic Mobile Learning Described below. You can test it using P
 #### Lecturer access
 1. Get all participants or a particular
 2. Add new Participants
-3. 
 
 #### Student access
-1. Get all participants
-2. 
+1. Get all participants 
+
+### Input Score by Lecturer
+```bash
+http://127.0.0.1:5000/classes/1/tasks/1/answers
+
+http://127.0.0.1:5000/classes/1/tasks/1/answers/<int:index>
+```
+
+#### Lecturer access
+1. Get all answers or particular answer
+2. Check a particular score and appraisal it
+3. Ability to update the appraisal
