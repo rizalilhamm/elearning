@@ -19,7 +19,7 @@ class AnswersResource(Resource):
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         if not current_class:
             return "Class not found"
-        current_task = Tasks.query.filter_by(class_id=current_class.class_id).first()
+        current_task = Tasks.query.join(Class.tasks).filter(Class.class_id==current_class.class_id).filter_by(class_id=class_id).first()
 
         answers = [str(answer) for answer in current_task.answers]
 
