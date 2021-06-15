@@ -6,8 +6,7 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
 from elearning import db, elearning
-from elearning.models import User, Class 
-from elearning.resources.errors import SchemaValidationError
+from elearning.models import User, Class
 
 def validate_lecture(user_level):
     return user_level < 2
@@ -17,11 +16,11 @@ def validate_student(user_level):
 class ClassroomsResource(Resource):
     @login_required
     def post(self):
-        """ Function used to create new class that only admin or lecture can use it
-        return:
-            tell user the class created! """
+        """ Function used to create new class that only admin or lecture can use it """
         if validate_lecture(current_user.user_level):
             if request.method == 'POST':
+                if 'classname' not in request.form:
+                    return
                 new_classname = request.form['new_classname']
                 if Class.query.filter_by(classname=new_classname).first():
                     return jsonify({
@@ -45,16 +44,19 @@ class ClassroomsResource(Resource):
 
     @login_required
     def get(self):
-        cu_classes = [str(cls) for cls in Class.query.join(User.classes).filter(User.email==current_user.email).all()]
+        # Return all classes that student joined
+        current_classes = [str(cls) for cls in Class.query.join(User.classes).filter(User.email==current_user.email).all()]
         message = None
 
-        if len(cu_classes) > 0:
-            message = cu_classes
+        if len(current_classes) > 0:
+            message = current_classes
         else:
             message = 'You have no Class yet'
         
         return jsonify({
-            'Classes': message
+            'Classes': message,
+            'Status': 200
+
         })
 class ClassroomResource(Resource):
     @login_required
@@ -63,19 +65,21 @@ class ClassroomResource(Resource):
         if not current_class:
             return jsonify({
                 'Message': 'Class not found!',
-                'Status': 400
+                'Status': 404
             })
-        theories = [str(the) for the in Theory.query.filter_by(class_id=current_class.class_id).all()]    
+        path = elearning.config['UPLOAD_FOLDER'] + '/uploads/materials/{}/'.format(current_class.classname)
+
+        materials = [i for i in os.listdir(path)]    
         return jsonify({
             'Classname': str(current_class),
-            'Theories': theories,
+            'Materials': materials,
             'Status': 200
         })
     
     @login_required
     def put(self, class_id):
+        """ Lecturer can update classname """
         if validate_lecture(current_user.user_level):
-            # s_class = Class.query.filter_by(class_id=class_id).first()
             current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
 
             if current_class is None:
@@ -108,8 +112,9 @@ class ClassroomResource(Resource):
                 'Status': 403
             })
 
-def validate_class_theory(class_id):
-    current_class = Class.query.get(class_id)
+def validate_class_material(class_id):
+    # validate folder and file extension
+    current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
     path = elearning.config['UPLOAD_FOLDER'] + '/uploads/materials/{}/'.format(current_class.classname)
     if not os.path.isdir(path):
         os.makedirs(path)
@@ -123,19 +128,16 @@ def validate_class_theory(class_id):
 
 ALLOWED_EXTENTIONS = {'pdf', 'docx'}
 def allowed_file(filename):
+    # check email extension
     return '.' in filename and \
         filename.split('.')[1].lower() in ALLOWED_EXTENTIONS
-class TheoryResource(Resource):
-    """
-    Lecturer only
-    1. Post: Lecture Upload materials to class
-             File location in /elearning/uploads/theory/classes
-             material name: "classname + theory title"
-    2. Get all materials and show it in the class forum
-    3. Delete a material
-    """
+class MaterialsResource(Resource):
     def post(self, class_id):
-        current_class = Class.query.get(class_id)
+        """ Lecturer only
+           1. Lecture Upload materials to a particular class
+             File location in /elearning/uploads/theory/classes
+             material name: \"classname + theory title\" """
+        current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         message = None
         if current_user.user_level <= 1:        
             if request.method == 'POST':
@@ -174,3 +176,21 @@ class TheoryResource(Resource):
             return jsonify({
                 'Message': 'Only admin or lecturer can post material'
             })
+
+    def get(self, class_id):
+        """ return all material at one URI """
+        try:
+            # current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
+            current_class = None
+            path = elearning.config['UPLOAD_FOLDER'] + '/uploads/materials/{}/'.format(current_class.classname)
+            if not path:
+                return "Location not found"
+            else:
+                files = [i for i in os.listdir(path) if '.' in i]
+                return jsonify({
+                    'Message': 'Success',
+                    'Materials': files,
+                    'Status': 200
+                })
+        except Exception as e:
+            pass
