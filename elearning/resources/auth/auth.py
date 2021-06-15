@@ -1,4 +1,4 @@
-from flask import Response, request, jsonify, url_for, redirect
+from flask import Response, request, jsonify
 from flask_restful import Resource
 from flask_login import current_user, login_required, login_user, logout_user
 
@@ -17,6 +17,7 @@ class SignupResource(Resource):
                 'Message': 'User logged in',
                 'Firstname': current_user.firstname,
                 'Lastname': current_user.lastname,
+                'Status': 200
             })
 
         if request.method == 'POST':
@@ -31,11 +32,15 @@ class SignupResource(Resource):
             user_level = None
            
             if User.query.filter_by(email=email).first():
-                return jsonify({'Message': 'Email has been registered, try another one'})
+                return jsonify({
+                    'Message': 'Email has been registered, try another one',
+                    'Status': 404
+                    })
             
             if (password != confirm_password) or (len(password) != len(confirm_password)):
                 return jsonify({
                     'message': 'Password is not same!',
+                    'Status': 404
                 })
 
             _, email_domain = email.split('@') 
@@ -48,7 +53,10 @@ class SignupResource(Resource):
                     break
             
             if user_level == None:
-                return 'Email not allowed to register'
+                return jsonify({
+                    'Message': 'Email not allowed to register',
+                    'Status': 404
+                })
 
             new_user = User(firstname=firstname, lastname=lastname, email=email, password=password, user_level=user_level)
             new_user.hash_password()
@@ -68,11 +76,13 @@ class SignupResource(Resource):
 
 class LoginResource(Resource):
     def post(self):
+        """ User login with email that registered before """
         if current_user.is_authenticated:
             return jsonify({
                 'Message': 'User logged in',
                 'Nim': current_user.id,
                 'Firstname':'{} {}'.format(current_user.firstname, current_user.lastname),
+                'Status': 200
             })
 
 
@@ -88,12 +98,14 @@ class LoginResource(Resource):
             
             login_user(user)
             return jsonify({
-                    'Username': user.firstname + ' ' + user.lastname
+                    'Username': user.firstname + ' ' + user.lastname,
+                    'Status': 200
             })
 
 class LogoutResource(Resource):
     @login_required
     def get(self):
+        """ Delete user login from session """
         logout_user()
         return jsonify(
             {
