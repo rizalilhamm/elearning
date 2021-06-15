@@ -6,7 +6,6 @@ from flask.json import jsonify
 from flask_restful import Resource
 
 from elearning import elearning, db
-from elearning.resources.errors import SchemaValidationError, ExtentionError
 from elearning.models import User, Class, Tasks, Answers
 
 def validate_lecture(user_level):
@@ -17,6 +16,12 @@ def validate_student(user_level):
 
 ALLOWED_EXTENTIONS = {'pdf', 'docx'}
 def allowed_file(filename):
+    """ Check if file is allowed 
+        param:
+            filename(string) -> name of particular file
+        return:
+            True or False
+        """
     return '.' in filename and \
         filename.split('.')[1].lower() in ALLOWED_EXTENTIONS
 
@@ -76,7 +81,7 @@ class TasksResource(Resource):
         if not current_class:
             return jsonify({
                 'Message': 'Task not found',
-                'Status': 400
+                'Status': 404
             })
         tasks = [str(i) for i in current_class.tasks] 
         if len(tasks) < 1:
@@ -92,7 +97,12 @@ class TasksResource(Resource):
 
 
 def validate_student_task(class_id, task):
-    """ if student has submit his task this will return your answer file else it return None """
+    """ if student has submit his task this will return your answer file else it return None         
+        param:
+            class_id(int) -> ID of particular class
+        return:
+            list of files or None if no file
+        """
     current_class = Class.query.get(class_id)
     path = elearning.config['UPLOAD_FOLDER'] + '/uploads/{}'.format(current_class.classname).lower()
     if not os.path.isdir(path):
@@ -113,7 +123,12 @@ def validate_student_task(class_id, task):
 
 class TaskResource(Resource):
     def post(self, class_id, index):
-        # The method for Student to Post their task
+        """ The method for Student to Post their task 
+            param:
+                class_id(int) -> ID of a particular class 
+                index(int) -> index of a task+1
+            return:
+                Task file otherwise None """
         if index > len(Tasks.query.filter_by(class_id=class_id).all()):
             return 'Index out of range'
 
