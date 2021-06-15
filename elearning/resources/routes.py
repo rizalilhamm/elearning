@@ -1,5 +1,5 @@
 from .auth import LogoutResource, SignupResource, LoginResource
-from .classroom import ClassroomsResource, ClassroomResource, TheoryResource
+from .classroom import ClassroomsResource, ClassroomResource, MaterialsResource
 from .tasks import TasksResource, TaskResource
 from .participants import ParticipantsResource, ParticipantResource
 from .answers import AnswersResource, AnswerResource
@@ -13,7 +13,7 @@ def initialize_routes(api):
     # Class Service
     api.add_resource(ClassroomsResource, '/classes')
     api.add_resource(ClassroomResource, '/classes/<int:class_id>')
-    api.add_resource(TheoryResource, '/classes/<int:class_id>/new_material')
+    api.add_resource(MaterialsResource, '/classes/<int:class_id>/materials')
     
     # Task service
     api.add_resource(TasksResource, '/classes/<int:class_id>/tasks')
