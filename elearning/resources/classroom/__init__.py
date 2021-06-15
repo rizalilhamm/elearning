@@ -1,7 +1,7 @@
-from .views import ClassroomsResource, ClassroomResource, TheoryResource
+from .views import ClassroomsResource, ClassroomResource, MaterialsResource
 
 __all__ = [
     "ClassroomsResource",
     "ClassroomResource",
-    'TheoryResource',
+    'MaterialsResource',
 ]

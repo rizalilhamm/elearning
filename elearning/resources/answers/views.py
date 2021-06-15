@@ -5,47 +5,59 @@ from flask_login import current_user, login_required
 from elearning import db
 from elearning.models import User, Class, Tasks, Answers
 
-# endpoint
-# 127.0.0.1:5000/classes/<int:class_id>/tasks/<int:task_id>/result
-# 127.0.0.1:5000/classes/<int:class_id>/tasks/<int:task_id>/answers/<int:answer_id>
-
-
-# temukan semua tugas, 
 class AnswersResource(Resource):
     def get(self, class_id, task_id):
+        # return all student answers from a particular class jika dia adalah Lecturer
         if current_user.user_level > 1:
             return "Not found"
-        # mengembalikan semua hasil jawaban pada tugas tertentu
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         if not current_class:
-            return "Class not found"
+            return jsonify({
+                'Message': 'Not found',
+                'Status': 400
+                
+            })
         current_task = Tasks.query.join(Class.tasks).filter(Class.class_id==current_class.class_id).filter_by(class_id=class_id).first()
-
-        answers = [str(answer) for answer in current_task.answers]
+        if current_task == None:
+            return jsonify({
+                'Message': 'Not found',
+                'Status': 400
+            })
+        else:
+            answers = [str(answer) for answer in current_task.answers]
 
         return jsonify({
-            'Semua jawaban': answers,
+            'All responses': answers,
         })
     
 class AnswerResource(Resource):
     def get(self, class_id, task_id, index):
+        # return a particular student answer
         if current_user.user_level > 1:
-            return 'Access denied'
+            return jsonify({
+                'Message': 'Not found',
+                'Status': 404
+            })
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         current_task = Tasks.query.join(Class.tasks).filter(Class.class_id==current_class.class_id).filter_by(task_id=task_id).first()
         current_answer = None
         if len(current_task.answers) < index:
-            return 'Index out of range'
+            return jsonify({
+                'Message': 'Not found',
+                'Status': 404
+
+            })
         else:
             current_answer = current_task.answers[index-1]
             owner = User.query.get(current_answer.owner)
             return jsonify({
-                'Jawaban sekarang': str(current_answer),
+                'Answer title': str(current_answer),
                 'Owner': str(owner),
                 'Score': '{} / 100'.format(current_answer.scores),
             })
 
     def post(self, class_id, task_id, index):
+        # Lecturer can rate student answer at a particular task
         if current_user.user_level > 1:
             return 'not found'
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
@@ -61,13 +73,14 @@ class AnswerResource(Resource):
             current_answer.scores = score
             db.session.commit()
         return jsonify({
-            'Jawaban sekarang': str(current_answer),
+            'Answer title': str(current_answer),
             'Owner': str(owner),
             'Score': '{} / 100'.format(current_answer.scores),
 
         })
     
     def put(self, class_id, task_id, index):
+        # Lecturer has ability to update score after submited
         if current_user.user_level > 1:
             return 'Access denied'
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
@@ -75,15 +88,18 @@ class AnswerResource(Resource):
         current_answer = current_task.answers[index-1]
         owner = current_answer.owner
         if request.method == 'PUT':
-            if not 'score'in request.form:
+            if not 'score' in request.form:
                 return 'not not initialized'
             score = request.form['score']
-            if score is None:
-                return 'not not initialized'
+            if score is None or score > '100':
+                return jsonify({
+                    'Message': 'Something wrong',
+                    'Status': 400
+                })
             current_answer.scores = score
             db.session.commit()
         return jsonify({
-            'Jawaban sekarang': str(current_answer),
+            'Answer title': str(current_answer),
             'Owner': str(owner),
             'Score': '{} / 100'.format(current_answer.scores),
         })
