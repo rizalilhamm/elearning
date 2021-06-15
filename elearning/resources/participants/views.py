@@ -1,8 +1,3 @@
-"""
-1. Get all user from a pasticular class (Done)
-2. add user to a particular class 
-3. delete user from a pasticular class
-"""
 from flask import request
 from flask.json import jsonify
 from flask_restful import Resource
@@ -14,6 +9,7 @@ from elearning.models.databasemodels import Class, User
 class ParticipantsResource(Resource):
     @login_required
     def get(self, class_id):
+        """ Get all participant from a particular class """
         s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         lecturer = ''.join([str(lecture) for lecture in s_class.users if lecture.user_level == 1])
         participants = [str(participant) for participant in s_class.users if participant.user_level > 1]
@@ -26,12 +22,14 @@ class ParticipantsResource(Resource):
     
     @login_required
     def post(self, class_id):
+        """ Lecturer has ability to add new participant to a class by input student email """
         s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         
         if request.method == 'POST':
             if 'user_email' not in request.form:
                 return jsonify({
-                    'Message': 'User email required!'
+                    'Message': 'User email required!',
+                    'Status': 400
                 })
 
             user_email = request.form['user_email']
@@ -56,6 +54,7 @@ class ParticipantsResource(Resource):
 
 class ParticipantResource(Resource):
     def get(self, class_id, index):
+        """ Get a particular Student profile """
         s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         
         if index > len(s_class.users):
