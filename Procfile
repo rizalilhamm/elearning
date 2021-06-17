@@ -1,1 +1,1 @@
-web: guniron elearning:elearning
+web: gunicorn elearning:elearning
