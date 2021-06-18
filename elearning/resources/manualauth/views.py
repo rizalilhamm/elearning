@@ -12,7 +12,7 @@ user_email_domain = ['lecture.ar-raniry.ac.id', 'student.ar-raniry.ac.id']
 def home():
     if not current_user.is_authenticated:
         flash("Home You have to login before access this page")
-        return redirect(url_for('login'))
+        return redirect(url_for('register'))
     
     return render_template('home.html')
 
