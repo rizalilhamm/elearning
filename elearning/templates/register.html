@@ -1,0 +1,30 @@
+{% extends 'parent.html' %}    
+{% block content %}
+    <form action="{{ url_for('register') }}" method="POST" class="form-example">
+        <div class="form-example">
+          <label for="firstname">Enter your fisrtname: </label>
+          <input type="text" name="firstname" id="firstname">
+        </div>
+        <div class="form-example">
+            <label for="lastname">Enter your lastname: </label>
+            <input type="text" name="lastname" id="lastname">
+        </div>
+        <div class="form-example">
+            <label for="email">Enter your email: </label>
+            <input type="email" name="email" id="email" placeholder="UIN Ar-Raniry Email">
+            <small style="color: blue;">Email UIN Ar-Raniry change your NIM become your name</small>
+        </div>
+        <div class="form-example">
+            <label for="password">Password: </label>
+            <input type="password" name="password" id="password">
+        </div>
+        <div class="form-example">
+            <label for="confirm_password">Confirm Password: </label>
+            <input type="password" name="confirm_password" id="confirm_password" placeholder="must == password">
+        </div>
+        <div class="form-example">
+          <input type="submit" value="Register">
+        </div>
+      </form>
+
+{% endblock %}
