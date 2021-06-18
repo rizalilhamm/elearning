@@ -75,7 +75,7 @@ def login():
             return redirect(request.url)
         flash('Login berhasil')
         login_user(check_user)
-        return "Anda Sekarang Login"
+        return redirect(url_for('home'))
 
     return render_template('login.html') 
 
