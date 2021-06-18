@@ -4,7 +4,7 @@ import re
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-uri = os.getenv("DATABASE_URL")  # or other relevant config var
+uri = os.getenv("DATABASE_URL")  # this will return error if does not exported
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
