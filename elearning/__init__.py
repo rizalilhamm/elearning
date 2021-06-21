@@ -1,8 +1,10 @@
 import os
-from flask import Flask
-from flask_restful import Api
+from flask import Flask, jsonify, request
+from flask.wrappers import JSONMixin
+from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_cors import CORS, cross_origin
 
 from elearning.resources import errors
 from elearning.config import Config
@@ -12,8 +14,15 @@ UPLOAD_FOLDER = os.getcwd()
 elearning = Flask(__name__)
 elearning.config.from_object(Config)
 elearning.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+CORS(elearning)
 login = LoginManager(elearning)
 db = SQLAlchemy(elearning)
+
+@elearning.route('/account/getaja', methods=['POST', 'GET'])
+def get_aja():
+    return jsonify({
+        'data': 'Kasmadi Ramadhan'
+    })
 
 db.create_all()
 
