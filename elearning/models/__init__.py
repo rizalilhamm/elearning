@@ -1,4 +1,4 @@
-from .databasemodels import User, Class, user_identifier, Tasks, Theory, Answers
+from .databasemodels import User, Class, user_identifier, Tasks, Theory, Answers, Comment
 
 __all__ = [
     'User',
@@ -6,5 +6,6 @@ __all__ = [
     'student_identifier',
     'Tasks',
     'Theory',
-    'Answers'
+    'Answers',
+    'Comment',
 ]
