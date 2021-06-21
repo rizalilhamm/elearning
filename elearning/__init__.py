@@ -34,8 +34,6 @@ api = Api(elearning, errors=errors)
 from elearning.resources.routes import initialize_routes
 from elearning.models import User
 
-# from elearning.resources.manualauth import registerManual, loginManual, logoutManual
-
 
 @login.user_loader
 def load_user(id):
