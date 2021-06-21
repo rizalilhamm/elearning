@@ -3,6 +3,7 @@ from .classroom import ClassroomsResource, ClassroomResource, MaterialsResource
 from .tasks import TasksResource, TaskResource
 from .participants import ParticipantsResource, ParticipantResource
 from .answers import AnswersResource, AnswerResource
+from .comment import ClassCommentResource, TaskCommentResource
 
 def initialize_routes(api):
     # Authentication Service
@@ -26,3 +27,7 @@ def initialize_routes(api):
     # take result
     api.add_resource(AnswersResource, '/classes/<int:class_id>/tasks/<int:task_id>/answers')
     api.add_resource(AnswerResource, '/classes/<int:class_id>/tasks/<int:task_id>/answers/<int:index>')
+
+    # comment service
+    api.add_resource(ClassCommentResource, '/classes/<int:class_id>/comments')
+    api.add_resource(TaskCommentResource, '/classes/<int:class_id>/tasks/<int:task_id>/comments')
