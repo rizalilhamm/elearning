@@ -1,4 +1,4 @@
-from elearning.models.databasemodels import Theory
+from elearning.models.databasemodels import Comment, Theory
 import os
 from flask import jsonify, request
 from flask_restful import Resource
@@ -6,7 +6,7 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
 from elearning import db, elearning
-from elearning.models import User, Class
+from elearning.models import User, Class, Comment
 
 def validate_lecture(user_level):
     return user_level < 2
@@ -19,8 +19,11 @@ class ClassroomsResource(Resource):
         """ Function used to create new class that only admin or lecture can use it """
         if validate_lecture(current_user.user_level):
             if request.method == 'POST':
-                if 'classname' not in request.form:
-                    return
+                if 'new_classname' not in request.form:
+                    return jsonify({
+                        'Message': 'All field required',
+                        'Status': 400
+                    })
                 new_classname = request.form['new_classname']
                 if Class.query.filter_by(classname=new_classname).first():
                     return jsonify({
@@ -62,17 +65,21 @@ class ClassroomResource(Resource):
     @login_required
     def get(self, class_id):
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
+        class_comment = [c for c in Comment.query.filter_by(class_id=class_id).all() if not c.task_id]
         if not current_class:
             return jsonify({
                 'Message': 'Class not found!',
                 'Status': 404
             })
         path = elearning.config['UPLOAD_FOLDER'] + '/uploads/materials/{}/'.format(current_class.classname)
+        if not os.path.isdir(path):
+            os.makedirs(path)
 
         materials = [i for i in os.listdir(path)]    
         return jsonify({
             'Classname': str(current_class),
             'Materials': materials,
+            'Comments': str(class_comment),
             'Status': 200
         })
     
