@@ -16,6 +16,8 @@ elearning.config.from_object(Config)
 elearning.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 CORS(elearning)
 login = LoginManager(elearning)
+login.login_view = '/account/login'
+login.login_message = 'You have to login to access class'
 db = SQLAlchemy(elearning)
 
 @elearning.route('/account/getaja', methods=['POST', 'GET'])
@@ -32,7 +34,7 @@ api = Api(elearning, errors=errors)
 from elearning.resources.routes import initialize_routes
 from elearning.models import User
 
-from elearning.resources.manualauth import registerManual, loginManual, logoutManual
+# from elearning.resources.manualauth import registerManual, loginManual, logoutManual
 
 
 @login.user_loader

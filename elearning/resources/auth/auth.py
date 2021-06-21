@@ -51,7 +51,7 @@ class SignupResource(Resource):
                     elif i == 1:
                         user_level = 2
                     break
-            
+
             if user_level == None:
                 return jsonify({
                     'Message': 'Email not allowed to register',
@@ -87,6 +87,11 @@ class LoginResource(Resource):
 
 
         if request.method == 'POST':
+            if ('email' or 'password') not in request.form:
+                return jsonify({
+                    'Message': 'All file required!',
+                    'Status': 400
+                })
             email = request.form['email']
             password = request.form['password']
 
@@ -101,6 +106,12 @@ class LoginResource(Resource):
                     'Username': user.firstname + ' ' + user.lastname,
                     'Status': 200
             })
+
+    def get(self):
+        return jsonify({
+            'Message': 'You have to login before access that page',
+            'Status': 401
+        })
 
 class LogoutResource(Resource):
     @login_required
