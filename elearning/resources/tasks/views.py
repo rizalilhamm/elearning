@@ -6,7 +6,7 @@ from flask.json import jsonify
 from flask_restful import Resource
 
 from elearning import elearning, db
-from elearning.models import User, Class, Tasks, Answers
+from elearning.models import User, Class, Tasks, Answers, Comment
 
 def validate_lecture(user_level):
     return user_level <= 1
@@ -224,15 +224,16 @@ class TaskResource(Resource):
                 'Message': 'Current class not found',
                 'Status': 400
             })
-        tasks = current_class.tasks
-        if tasks == None:
+        all_tasks = current_class.tasks
+        if all_tasks == None:
             return 'This class has no task'
-        if index > len(tasks):
+        if index > len(all_tasks):
             return jsonify({
-                'Message': 'you have only {} tasks in {} Class'.format(len(tasks), Class.query.get(class_id)),
+                'Message': 'you have only {} tasks in {} Class'.format(len(all_tasks), Class.query.get(class_id)),
                 'Status': 404
             })
-        task = tasks[index-1]
+        task = all_tasks[index-1]
+        task_comment = Comment.query.filter_by(task_id=all_tasks[index-1].task_id).all()
         
         
         message = None
@@ -244,6 +245,7 @@ class TaskResource(Resource):
                     'Message': message,
                     'Terkumpul': your_answer,
                     'Task': str(task),
+                    'Comment': task_comment,
                     'Task Description': str(task.task_desc),
                     'Score': str(Answers.query.get(task.task_id).scores)
                 })
@@ -257,6 +259,7 @@ class TaskResource(Resource):
             message = 'You can update the task'
             return jsonify({
                 'Message': message,
+                'Comment': str(task_comment),
                 'Task': str(task) 
             })
     @login_required
