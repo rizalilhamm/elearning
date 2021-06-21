@@ -132,6 +132,7 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.split('.')[1].lower() in ALLOWED_EXTENTIONS
 class MaterialsResource(Resource):
+    @login_required
     def post(self, class_id):
         """ Lecturer only
            1. Lecture Upload materials to a particular class
@@ -176,7 +177,7 @@ class MaterialsResource(Resource):
             return jsonify({
                 'Message': 'Only admin or lecturer can post material'
             })
-
+    @login_required
     def get(self, class_id):
         """ return all material at one URI """
         try:

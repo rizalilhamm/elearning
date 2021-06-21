@@ -67,7 +67,7 @@ class TasksResource(Resource):
                 'Message': 'Only admin or Lecture can Create new Task',
                 'Status': 403
             })
-    
+    @login_required
     def get(self, class_id):
         """ Select a particular Class and return all tasks if available
              param:
@@ -122,6 +122,7 @@ def validate_student_task(class_id, task):
     return your_answer
 
 class TaskResource(Resource):
+    @login_required
     def post(self, class_id, index):
         """ The method for Student to Post their task 
             param:
@@ -258,7 +259,7 @@ class TaskResource(Resource):
                 'Message': message,
                 'Task': str(task) 
             })
-        
+    @login_required
     def delete(self, task_id):
         pass
         

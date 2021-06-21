@@ -6,6 +6,7 @@ from elearning import db
 from elearning.models import User, Class, Tasks, Answers
 
 class AnswersResource(Resource):
+    @login_required
     def get(self, class_id, task_id):
         # return all student answers from a particular class jika dia adalah Lecturer
         if current_user.user_level > 1:
@@ -31,6 +32,7 @@ class AnswersResource(Resource):
         })
     
 class AnswerResource(Resource):
+    @login_required
     def get(self, class_id, task_id, index):
         # return a particular student answer
         if current_user.user_level > 1:
@@ -55,7 +57,7 @@ class AnswerResource(Resource):
                 'Owner': str(owner),
                 'Score': '{} / 100'.format(current_answer.scores),
             })
-
+    @login_required
     def post(self, class_id, task_id, index):
         # Lecturer can rate student answer at a particular task
         if current_user.user_level > 1:
@@ -78,7 +80,7 @@ class AnswerResource(Resource):
             'Score': '{} / 100'.format(current_answer.scores),
 
         })
-    
+    @login_required
     def put(self, class_id, task_id, index):
         # Lecturer has ability to update score after submited
         if current_user.user_level > 1:

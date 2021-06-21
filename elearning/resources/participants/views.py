@@ -53,6 +53,7 @@ class ParticipantsResource(Resource):
             })
 
 class ParticipantResource(Resource):
+    @login_required
     def get(self, class_id, index):
         """ Get a particular Student profile """
         s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
@@ -67,6 +68,6 @@ class ParticipantResource(Resource):
         return jsonify({
             'User': participant
         })
-    
+    @login_required
     def delete(self, class_id, index):
         pass
