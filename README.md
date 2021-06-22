@@ -27,6 +27,7 @@ The REST API Electronic Mobile Learning Described below. You can test it using P
     > Lecturer (example@lecture.ar-raniry.ac.id) **(lecture after @)**
 
     > Student (example@student.ar-raniry.ac.id) **(student after @)**
+    
 2. Login with registered email
 3. Logout from system
 ### Class Service
@@ -87,3 +88,20 @@ http://127.0.0.1:5000/classes/1/tasks/1/answers/<int:index>
 1. Get all answers or particular answer
 2. Check a particular score and appraisal it
 3. Ability to update the appraisal
+
+### Comment Service
+```bash
+Class commments
+http://127.0.0.1:5000/classes/1/comments
+
+Task comments
+http://127.0.0.1:5000/classes/1/tasks/1/comments
+```
+
+#### Lecturer access
+1. Ability to post a comment
+2. Ability to get all comment
+
+#### Student access
+1. Ability to post a comment
+2. Ability to get all comment
