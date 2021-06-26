@@ -58,6 +58,7 @@ class TasksResource(Resource):
                 db.session.commit()
 
                 return jsonify({
+                    'Task_id': new_task.task_id,
                     'Message': 'Task added {}'.format(Class.query.get(class_id)),
                     'Tasks': str(new_task),
                     'Status': 200
@@ -83,7 +84,14 @@ class TasksResource(Resource):
                 'Message': 'Task not found',
                 'Status': 404
             })
-        tasks = [str(i) for i in current_class.tasks] 
+        # tasks = [str(i) for i in current_class.tasks]
+        tasks = []
+        for task in Tasks.query.filter_by(class_id=current_class.class_id).all():
+            ts = {}
+            ts['Task_id'] = task.task_id
+            ts['Task_title'] = task.task_title
+            tasks.append(ts)
+
         if len(tasks) < 1:
             return jsonify({
                 'Message': 'Woohoo, no work due in soon!',
@@ -92,7 +100,7 @@ class TasksResource(Resource):
         return jsonify({    
             'Tasks': tasks,
             'Message': 'You have some Tasks',
-            'Status': 302
+            'Status': 200
         })
 
 
@@ -131,7 +139,10 @@ class TaskResource(Resource):
             return:
                 Task file otherwise None """
         if index > len(Tasks.query.filter_by(class_id=class_id).all()):
-            return 'Index out of range'
+            return jsonify({
+                'Message': 'Index out of range',
+                'Status': 400
+            })
 
         current_class = Class.query.get(class_id)
         current_task = Tasks.query.filter_by(task_title=str(current_class.tasks[index-1])).first()
@@ -200,7 +211,8 @@ class TaskResource(Resource):
 
             return jsonify({
                 'Message': 'Updated!',
-                'Result': str(tasks[index-1])
+                'Result': str(tasks[index-1]),
+                'Status': 200
             })
         else:
             return jsonify({
@@ -233,8 +245,13 @@ class TaskResource(Resource):
                 'Status': 404
             })
         task = all_tasks[index-1]
-        task_comment = Comment.query.filter_by(task_id=all_tasks[index-1].task_id).all()
-        
+        # task_comment = Comment.query.filter_by(task_id=all_tasks[index-1].task_id).all()
+        task_comments = []
+        for comment in Comment.query.filter_by(task_id=all_tasks[index-1].task_id).all():
+            cm = {}
+            cm['Comment_id'] = comment.comment_id
+            cm['Comment_text'] = comment.comment_text
+            task_comments.append(cm)
         
         message = None
         if validate_student(current_user.user_level):
@@ -245,7 +262,7 @@ class TaskResource(Resource):
                     'Message': message,
                     'Terkumpul': your_answer,
                     'Task': str(task),
-                    'Comment': task_comment,
+                    'Comment': task_comments,
                     'Task Description': str(task.task_desc),
                     'Score': str(Answers.query.get(task.task_id).scores)
                 })
@@ -259,7 +276,7 @@ class TaskResource(Resource):
             message = 'You can update the task'
             return jsonify({
                 'Message': message,
-                'Comment': str(task_comment),
+                'Comment': task_comments,
                 'Task': str(task) 
             })
     @login_required
