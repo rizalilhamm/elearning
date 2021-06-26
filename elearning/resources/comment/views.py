@@ -21,16 +21,26 @@ class ClassCommentResource(Resource):
         
             return jsonify({
                 'Message': 'Success',
-                'Comment': str(new_comment),
+                'Comment': new_comment,
+                'User_id': new_comment.user_id,
                 'Status': 200
             })
 
     @login_required
     def get(self, class_id):
-        comments = [c for c in Comment.query.filter_by(class_id=class_id).all() if not c.task_id]
+        # comments = [c for c in Comment.query.filter_by(class_id=class_id).all() if not c.task_id]
+        comments = []
+        for comment in Comment.query.filter_by(class_id=class_id).all():
+            if not comment.task_id:
+                cm = {}
+                cm['Comment_id'] = comment.comment_id
+                cm['Comment_text'] = comment.comment_text
+                cm['User_id'] = comment.user_id
+                comments.append(cm)
         return jsonify({
             'Message': 'Success',
-            'Comment': str(comments),
+            'Comment': comments,
+            # 'User_id': new_comment.user_id,
             'Status': 200
         })
 
@@ -59,10 +69,15 @@ class TaskCommentResource(Resource):
 
     @login_required
     def get(self, class_id, task_id):
-        comments = Comment.query.filter_by(task_id=task_id).all()
+        comments = []
+        for comment in Comment.query.filter_by(task_id=task_id).all():
+            cm = {}
+            cm['Comment_id'] = comment.comment_id
+            cm['Comment_text'] = comment.comment_text
+            comments.append(cm)
         return jsonify({
             'Message': 'Success',
-            'Comment': str(comments),
+            'Comment': comments,
             'Status': 200
         })
     
