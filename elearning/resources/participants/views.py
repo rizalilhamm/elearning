@@ -3,7 +3,7 @@ from flask.json import jsonify
 from flask_restful import Resource
 from flask_login import current_user, login_required
 
-from elearning import elearning, db
+from elearning import db
 from elearning.models.databasemodels import Class, User
 
 class ParticipantsResource(Resource):
@@ -11,11 +11,14 @@ class ParticipantsResource(Resource):
     def get(self, class_id):
         """ Get all participant from a particular class """
         s_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
-        lecturer = ''.join([str(lecture) for lecture in s_class.users if lecture.user_level == 1])
-        participants = [str(participant) for participant in s_class.users if participant.user_level > 1]
-
+        participants = []
+        for user in s_class.users:
+            us = {}
+            us['User_id'] = user.id
+            us['Name'] = user.firstname + ' ' + user.lastname
+            us['User_level'] = user.user_level
+            participants.append(us)
         return jsonify({
-            'Lecture': lecturer,
             'Participants': participants,
             'Status': 200
         })
@@ -60,13 +63,15 @@ class ParticipantResource(Resource):
         
         if index > len(s_class.users):
             return jsonify({
-                'Message': 'Index out of range',
+                'Message': f'You only have {len(s_class.users)} participants in this class',
                 'Status': 400
             })
 
-        participant = str(s_class.users[index-1])
+        participant = s_class.users[index-1]
         return jsonify({
-            'User': participant
+            'Name': str(participant),
+            'User_id': participant.id,
+            'Status': 200
         })
     @login_required
     def delete(self, class_id, index):
