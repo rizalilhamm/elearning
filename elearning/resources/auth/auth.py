@@ -22,7 +22,7 @@ class SignupResource(Resource):
             })
 
         if request.method == 'POST':
-            if 'firstname' or 'lastname' or 'email' or 'password' or 'confirm_password' not in request.form:
+            if ('firstname' or 'lastname' or 'email' or 'password' or 'confirm_password') not in request.form:
                 return jsonify({
                     'Message': 'All field is required!',
                     'Status': 400
