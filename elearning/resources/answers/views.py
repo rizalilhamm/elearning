@@ -10,7 +10,10 @@ class AnswersResource(Resource):
     def get(self, class_id, task_id):
         # return all student answers from a particular class jika dia adalah Lecturer
         if current_user.user_level > 1:
-            return "Not found"
+            return jsonify({
+                'Message': 'Not found',
+                'Status': 400  
+            })
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         if not current_class:
             return jsonify({
@@ -25,11 +28,17 @@ class AnswersResource(Resource):
                 'Status': 400
             })
         else:
-            answers = [str(answer) for answer in current_task.answers]
-
-        return jsonify({
-            'All responses': answers,
-        })
+            answers = []
+            for answer in current_task.answers:
+                ans = {}
+                ans['Answer_id'] = answer.answer_id
+                ans['Answer_title'] = answer.answer_title
+                ans['Answer_owner'] = answer.owner
+                answers.append(ans)
+            return jsonify({
+                'All_answers': answers,
+                'Status': 200
+            })
     
 class AnswerResource(Resource):
     @login_required
@@ -56,6 +65,7 @@ class AnswerResource(Resource):
                 'Answer title': str(current_answer),
                 'Owner': str(owner),
                 'Score': '{} / 100'.format(current_answer.scores),
+                'Status': 200
             })
     @login_required
     def post(self, class_id, task_id, index):
@@ -68,7 +78,7 @@ class AnswerResource(Resource):
         owner = current_answer.owner
         if request.method == 'POST':
             if not 'score'in request.form:
-                return 'not not initialized'
+                return 'not initialized'
             score = request.form['score']
             if score is None:
                 return 'not not initialized'
@@ -78,13 +88,17 @@ class AnswerResource(Resource):
             'Answer title': str(current_answer),
             'Owner': str(owner),
             'Score': '{} / 100'.format(current_answer.scores),
+            'Status': 200
 
         })
     @login_required
     def put(self, class_id, task_id, index):
         # Lecturer has ability to update score after submited
         if current_user.user_level > 1:
-            return 'Access denied'
+            return jsonify({
+                'Message': 'Access denied',
+                'Status': 400
+            })
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         current_task = Tasks.query.join(Class.tasks).filter(Class.class_id==current_class.class_id).filter_by(task_id=task_id).first()
         current_answer = current_task.answers[index-1]
@@ -104,6 +118,7 @@ class AnswerResource(Resource):
             'Answer title': str(current_answer),
             'Owner': str(owner),
             'Score': '{} / 100'.format(current_answer.scores),
+            'Status': 200
         })
     
     
