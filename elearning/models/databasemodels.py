@@ -73,7 +73,7 @@ class Comment(db.Model):
     comment_text = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     class_id = db.Column(db.Integer, db.ForeignKey('classes.class_id'), nullable=False)
-    task_id = db.Column(db.Integer, db.ForeignKey('tasks.class_id'), nullable=True)
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.task_id'), nullable=True)
 
     def __repr__(self):
         return self.comment_text
