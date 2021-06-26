@@ -1,3 +1,4 @@
+from elearning.models.databasemodels import Tasks
 import os
 from flask import jsonify, request
 from flask_restful import Resource
@@ -74,6 +75,7 @@ class ClassroomResource(Resource):
         # class_comment = [c for c in Comment.query.filter_by(class_id=class_id).all() if not c.task_id]
         class_comment = []
         theories = []
+        tasks = []
         for comment in Comment.query.filter_by(class_id=class_id).all():
             if not comment.task_id:
                 cm = {}
@@ -95,11 +97,18 @@ class ClassroomResource(Resource):
             mtr['Theory_id'] = theory.theory_id
             mtr['Theory_name'] = theory.theory_name
             theories.append(mtr)
-
+        
+        for task in Tasks.query.filter_by(class_id=current_class.class_id).all():
+            ts = {}
+            ts['Task_id'] = task.task_id
+            ts['Task_title'] = task.task_title
+            tasks.append(ts)
+            
         return jsonify({
             'Class_id': current_class.class_id,
             'Classname': current_class.classname,
             'Theories': theories,
+            'Tasks': tasks,
             'Comments': class_comment,
             'Status': 200
         })
