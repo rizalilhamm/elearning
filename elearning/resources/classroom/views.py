@@ -1,4 +1,3 @@
-from elearning.models.databasemodels import Comment, Theory
 import os
 from flask import jsonify, request
 from flask_restful import Resource
@@ -6,7 +5,7 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
 from elearning import db, elearning
-from elearning.models import User, Class, Comment
+from elearning.models import User, Class, Comment, Theory
 
 def validate_lecture(user_level):
     return user_level < 2
@@ -36,6 +35,7 @@ class ClassroomsResource(Resource):
                 db.session.commit()
 
                 return jsonify({
+                    'Class_id': new_class.class_id,
                     'Message': 'Class created', 
                     'Status': 201
                 })
@@ -48,16 +48,22 @@ class ClassroomsResource(Resource):
     @login_required
     def get(self):
         # Return all classes that student joined
-        current_classes = [str(cls) for cls in Class.query.join(User.classes).filter(User.email==current_user.email).all()]
-        message = None
+        # current_classes = [str(cls) for cls in Class.query.join(User.classes).filter(User.email==current_user.email).all()]
+        all_classes = []
+        for cls in Class.query.join(User.classes).filter(User.email==current_user.email).all():
+            current_class = {}
+            current_class['Class_id'] = cls.class_id
+            current_class['Classname'] = cls.classname
+            all_classes.append(current_class)
 
-        if len(current_classes) > 0:
-            message = current_classes
-        else:
-            message = 'You have no Class yet'
+        if len(all_classes) <= 0:
+            return jsonify({
+                'Message': 'You have no Class yet',
+                'Status': 200
+            })
         
         return jsonify({
-            'Classes': message,
+            'Classes': all_classes,
             'Status': 200
 
         })
@@ -65,7 +71,16 @@ class ClassroomResource(Resource):
     @login_required
     def get(self, class_id):
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
-        class_comment = [c for c in Comment.query.filter_by(class_id=class_id).all() if not c.task_id]
+        # class_comment = [c for c in Comment.query.filter_by(class_id=class_id).all() if not c.task_id]
+        class_comment = []
+        theories = []
+        for comment in Comment.query.filter_by(class_id=class_id).all():
+            if not comment.task_id:
+                cm = {}
+                cm['Comment_id'] = comment.comment_id
+                cm['Comment_text'] = comment.comment_text
+                cm['User_id'] = comment.user_id
+                class_comment.append(cm)
         if not current_class:
             return jsonify({
                 'Message': 'Class not found!',
@@ -75,11 +90,17 @@ class ClassroomResource(Resource):
         if not os.path.isdir(path):
             os.makedirs(path)
 
-        materials = [i for i in os.listdir(path)]    
+        for theory in Theory.query.filter_by(class_id=current_class.class_id).all():
+            mtr = {}
+            mtr['Theory_id'] = theory.theory_id
+            mtr['Theory_name'] = theory.theory_name
+            theories.append(mtr)
+
         return jsonify({
-            'Classname': str(current_class),
-            'Materials': materials,
-            'Comments': str(class_comment),
+            'Class_id': current_class.class_id,
+            'Classname': current_class.classname,
+            'Theories': theories,
+            'Comments': class_comment,
             'Status': 200
         })
     
@@ -111,7 +132,9 @@ class ClassroomResource(Resource):
                 db.session.commit()
 
                 return jsonify({
-                      'Message': 'Classname updated to \'{}\''.format(str(current_class.classname))
+                      'Class_id': current_class.class_id,
+                      'Message': 'Classname updated to \'{}\''.format(str(current_class.classname)),
+                      'Status': 200
                 })
         else:
             return jsonify({
@@ -147,11 +170,13 @@ class MaterialsResource(Resource):
              material name: \"classname + theory title\" """
         current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
         message = None
+        status_code = None
         if current_user.user_level <= 1:        
             if request.method == 'POST':
             
                 if 'material' not in request.files or 'material_title' not in request.form:
                     message = 'No field to input!'
+                    status_code = 400
                 
                 else:
                     material = request.files['material']
@@ -160,9 +185,11 @@ class MaterialsResource(Resource):
                     if allowed_file(material.filename):
                         if (material.filename == '') or (material_title == ''):
                             message = 'All fields are required!'
+                            status_code = 400
                         else:
                             if material_title == str(Theory.query.filter_by(theory_name=material_title).first()):
                                 message = 'This title was used, try another one!'
+                                status_code = 400
                             else:
                                 path = elearning.config['UPLOAD_FOLDER'] + '/uploads/materials/{}/'.format(current_class.classname)
                                 file_extention = '.{}'.format(material.filename.split('.')[1].lower())
@@ -174,15 +201,19 @@ class MaterialsResource(Resource):
                                 db.session.add(new_theory)
                                 db.session.commit()
                                 message = 'Material \'{}\' submitted!'.format(material_title)
+                                status_code = 200
                     else:
                         message = 'File not allowed'
+                        status_code = 400
 
                 return jsonify({
-                    'Message': message
+                    'Message': message,
+                    'Status': status_code
                 })
         else:
             return jsonify({
-                'Message': 'Only admin or lecturer can post material'
+                'Message': 'Only admin or lecturer can post material',
+                'Status': 400
             })
     @login_required
     def get(self, class_id):
