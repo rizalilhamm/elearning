@@ -14,6 +14,7 @@ class SignupResource(Resource):
             2. Student """
         if current_user.is_authenticated:
             return jsonify({
+                'user_id': current_user.id,
                 'Message': 'User logged in',
                 'Firstname': current_user.firstname,
                 'Lastname': current_user.lastname,
@@ -21,7 +22,7 @@ class SignupResource(Resource):
             })
 
         if request.method == 'POST':
-            if ('firstname' or 'lastname' or 'email' or 'password' or 'confirm_password') not in request.form:
+            if 'firstname' or 'lastname' or 'email' or 'password' or 'confirm_password' not in request.form:
                 return jsonify({
                     'Message': 'All field is required!',
                     'Status': 400
@@ -66,6 +67,7 @@ class SignupResource(Resource):
 
             return jsonify(
                 {
+                    'user_id': new_user.id,
                     'Username': '{} {}'.format(firstname, lastname),
                     'Status': 200
                 }
@@ -79,17 +81,17 @@ class LoginResource(Resource):
         """ User login with email that registered before """
         if current_user.is_authenticated:
             return jsonify({
+                'user_id': current_user.id,
                 'Message': 'User logged in',
-                'Nim': current_user.id,
                 'Firstname':'{} {}'.format(current_user.firstname, current_user.lastname),
                 'Status': 200
             })
 
 
         if request.method == 'POST':
-            if ('email' or 'password') not in request.form:
+            if ('email' not in request.form) or ('password' not in request.form):
                 return jsonify({
-                    'Message': 'All file required!',
+                    'Message': 'Email and Password are required!',
                     'Status': 400
                 })
             email = request.form['email']
@@ -99,17 +101,19 @@ class LoginResource(Resource):
             if not user or not user.check_password(password):
                 return jsonify({
                     'Message': 'invalid email or password!',
+                    'Status': 400
                 })
             
             login_user(user)
             return jsonify({
+                    'user_id': user.id,
                     'Username': user.firstname + ' ' + user.lastname,
                     'Status': 200
             })
 
     def get(self):
         return jsonify({
-            'Message': 'You have to login before access that page',
+            'Message': 'Method not allowed',
             'Status': 401
         })
 
