@@ -14,7 +14,7 @@ class SignupResource(Resource):
             2. Student """
         if current_user.is_authenticated:
             return jsonify({
-                'user_id': current_user.id,
+                'User_id': current_user.id,
                 'Message': 'User logged in',
                 'Firstname': current_user.firstname,
                 'Lastname': current_user.lastname,
@@ -40,7 +40,7 @@ class SignupResource(Resource):
             
             if (password != confirm_password) or (len(password) != len(confirm_password)):
                 return jsonify({
-                    'message': 'Password is not same!',
+                    'Message': 'Password is not same!',
                     'Status': 404
                 })
 
@@ -67,7 +67,7 @@ class SignupResource(Resource):
 
             return jsonify(
                 {
-                    'user_id': new_user.id,
+                    'User_id': new_user.id,
                     'Username': '{} {}'.format(firstname, lastname),
                     'Status': 200
                 }
@@ -81,7 +81,7 @@ class LoginResource(Resource):
         """ User login with email that registered before """
         if current_user.is_authenticated:
             return jsonify({
-                'user_id': current_user.id,
+                'User_id': current_user.id,
                 'Message': 'User logged in',
                 'Firstname':'{} {}'.format(current_user.firstname, current_user.lastname),
                 'Status': 200
@@ -106,7 +106,7 @@ class LoginResource(Resource):
             
             login_user(user)
             return jsonify({
-                    'user_id': user.id,
+                    'User_id': user.id,
                     'Username': user.firstname + ' ' + user.lastname,
                     'Status': 200
             })
