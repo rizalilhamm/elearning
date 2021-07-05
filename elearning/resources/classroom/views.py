@@ -1,4 +1,3 @@
-from elearning.models.databasemodels import Tasks
 import os
 from flask import jsonify, request
 from flask_restful import Resource
@@ -6,7 +5,7 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
 from elearning import db, elearning
-from elearning.models import User, Class, Comment, Theory
+from elearning.models import User, Class, Comment, Theory, Tasks
 
 def validate_lecture(user_level):
     return user_level < 2
