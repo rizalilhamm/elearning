@@ -17,10 +17,7 @@ elearning.config.from_object(Config)
 elearning.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 CORS(elearning)
 login = LoginManager(elearning)
-login.login_view = '/account/login/'
-login.login_message = 'You have to login to access class'
 db = SQLAlchemy(elearning)
-
 
 db.create_all()
 

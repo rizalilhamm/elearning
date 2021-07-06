@@ -42,7 +42,8 @@ class ArchivedClassroom(Resource):
         return jsonify({
             "Message": message,
             "Classname": current_class.classname,
-            "Archived": current_class.archived
+            "Archived": current_class.archived,
+            "Status": 200
             })
 
     @login_required
