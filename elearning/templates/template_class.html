@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<u><h3>MENAMPILKAN KELAS YANG ACTIVE</h3></u>
+    <div>
+        {% for active_class in active_classes %}
+            <li>{{ active_class }}</li>
+            <p>{{ active_class.archived }}</p>
+            <a href="/manual/classes/arsifkan/{{active_class.class_id}}">Arsifkan</a>
+        {% endfor %}
+    </div>
+    <div>
+        <u><h3>MENAMPILKAN KELAS YANG DIARSIF</h3></u>
+        {% for archived_class in archived_classes %}
+            <li>{{ archived_class }}</li>
+            <p>{{ archived_class.archived }}</p>
+            <a href="/manual/classes/arsifkan/{{archived_class.class_id}}">Tampilkan</a>
+        {% endfor %}
+    </div>
+
+{% endblock %}
