@@ -1,7 +1,6 @@
 import os
-from flask import Flask, jsonify, request, render_template, flash, redirect
+from flask import Flask, request, render_template, redirect
 from flask.helpers import url_for
-from flask.wrappers import JSONMixin
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -10,6 +9,7 @@ from flask_cors import CORS
 from elearning.resources import errors
 from elearning.config import Config
 
+
 UPLOAD_FOLDER = os.getcwd()
 
 elearning = Flask(__name__)
@@ -17,7 +17,7 @@ elearning.config.from_object(Config)
 elearning.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 CORS(elearning)
 login = LoginManager(elearning)
-login.login_view = '/account/login'
+login.login_view = '/account/login/'
 login.login_message = 'You have to login to access class'
 db = SQLAlchemy(elearning)
 
@@ -33,6 +33,7 @@ from elearning.models import User, Class
 
 @elearning.route('/manual/classes/arsifkan/<int:class_id>')
 def arsipkan(class_id):
+    """Fungsi akan dijalankan ketika salah satu kelas di arsipkan secara manual (bukan melalui API)"""
     current_class = Class.query.get(class_id)
     if current_class.archived == True:
         current_class.archived = False
@@ -40,12 +41,11 @@ def arsipkan(class_id):
     else:
         current_class.archived = True
         db.session.commit()
-        
     return redirect(url_for('semua_class'))
-
 
 @elearning.route('/manual/classes')
 def semua_class():
+    """Memisahkan class yang aktif dan yang diarsif secara manual (bukan melalui API)"""
     active_classes = []
     archived_classes = []
 
