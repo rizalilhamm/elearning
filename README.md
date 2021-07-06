@@ -16,11 +16,11 @@ flask run
 The REST API Electronic Mobile Learning Described below. You can test it using Postman
 ### Authentication
 ``` base
-127.0.0.1:5000/account/register
+127.0.0.1:5000/account/register/
     
-127.0.0.1:5000/account/login
+127.0.0.1:5000/account/login/
     
-127.0.0.1:5000/account/logout
+127.0.0.1:5000/account/logout/
 ```
 #### User access
 1. Register with institution email
@@ -32,9 +32,9 @@ The REST API Electronic Mobile Learning Described below. You can test it using P
 3. Logout from system
 ### Class Service
 ```base
-127.0.0.1:5000/classes
+127.0.0.1:5000/classes/
 
-127.0.0.1:5000/classes/<int:id>
+127.0.0.1:5000/classes/<int:id>/
 ```
 #### Lecturer access
 1. Get all classes or particular class
@@ -46,9 +46,9 @@ The REST API Electronic Mobile Learning Described below. You can test it using P
 
 ### Tasks Service
 ```bash
-127.0.0.1:5000/classes/<int:id>/tasks
+127.0.0.1:5000/classes/<int:id>/tasks/
 
-127.0.0.1:5000/classes/<int:id>/tasks/<int:index>
+127.0.0.1:5000/classes/<int:id>/tasks/<int:index>/
 ```
 #### Lecturer access
 1. Get all tasks or a particular task
@@ -61,14 +61,14 @@ The REST API Electronic Mobile Learning Described below. You can test it using P
 
 ### Class Material
 ```bash
-127.0.0.1:5000/classes/<int:id>/new_materials
+127.0.0.1:5000/classes/<int:id>/new_materials/
 ``` 
 #### Lecture acces
 1. Post new material for a particular class
 
 ### Class Participants 
 ```
-127.0.0.1:5000/classes/<int:id>/participants/<int:index>
+127.0.0.1:5000/classes/<int:id>/participants/<int:index>/
 ```   
 #### Lecturer access
 1. Get all participants or a particular
@@ -79,9 +79,9 @@ The REST API Electronic Mobile Learning Described below. You can test it using P
 
 ### Input Score by Lecturer
 ```bash
-http://127.0.0.1:5000/classes/1/tasks/1/answers
+http://127.0.0.1:5000/classes/1/tasks/1/answers/
 
-http://127.0.0.1:5000/classes/1/tasks/1/answers/<int:index>
+http://127.0.0.1:5000/classes/1/tasks/1/answers/<int:index>/
 ```
 
 #### Lecturer access
@@ -92,10 +92,10 @@ http://127.0.0.1:5000/classes/1/tasks/1/answers/<int:index>
 ### Comment Service
 ```bash
 Class commments
-http://127.0.0.1:5000/classes/1/comments
+http://127.0.0.1:5000/classes/1/comments/
 
 Task comments
-http://127.0.0.1:5000/classes/1/tasks/1/comments
+http://127.0.0.1:5000/classes/1/tasks/1/comments/
 ```
 
 #### Lecturer access
@@ -105,3 +105,16 @@ http://127.0.0.1:5000/classes/1/tasks/1/comments
 #### Student access
 1. Ability to post a comment
 2. Ability to get all comment
+
+### Archive Class
+```bash
+http://127.0.0.1:5000/classes/archiveds/
+
+http://127.0.0.1:5000/classes/archiveds/<int:class_id>/
+```
+#### Lecturer access
+1. Ability to archive a class
+2. Get all or particular ardhived class
+
+#### Lecturer access
+1. Get all or particular ardhived class
