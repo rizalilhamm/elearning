@@ -49,24 +49,26 @@ class ClassroomsResource(Resource):
     def get(self):
         # Return all classes that student joined
         # current_classes = [str(cls) for cls in Class.query.join(User.classes).filter(User.email==current_user.email).all()]
-        all_classes = []
+        active_classes = []
         for cls in Class.query.join(User.classes).filter(User.email==current_user.email).all():
-            current_class = {}
-            current_class['Class_id'] = cls.class_id
-            current_class['Classname'] = cls.classname
-            all_classes.append(current_class)
+            if cls.archived == False:
+                current_class = {}
+                current_class['Class_id'] = cls.class_id
+                current_class['Classname'] = cls.classname
+                active_classes.append(current_class)
 
-        if len(all_classes) <= 0:
+        if len(active_classes) <= 0:
             return jsonify({
                 'Message': 'You have no Class yet',
                 'Status': 200
             })
         
         return jsonify({
-            'Classes': all_classes,
+            'Classes': active_classes,
             'Status': 200
-
         })
+
+
 class ClassroomResource(Resource):
     @login_required
     def get(self, class_id):
@@ -150,6 +152,7 @@ class ClassroomResource(Resource):
                 'Status': 403
             })
 
+
 def validate_class_material(class_id):
     # validate folder and file extension
     current_class = Class.query.join(User.classes).filter(User.email==current_user.email).filter_by(class_id=class_id).first()
@@ -169,6 +172,8 @@ def allowed_file(filename):
     # check email extension
     return '.' in filename and \
         filename.split('.')[1].lower() in ALLOWED_EXTENTIONS
+
+
 class MaterialsResource(Resource):
     @login_required
     def post(self, class_id):
