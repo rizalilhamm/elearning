@@ -22,59 +22,46 @@ login.login_message = 'You have to login to access class'
 db = SQLAlchemy(elearning)
 
 
-user_email_domain = ['lecture.ar-raniry.ac.id', 'student.ar-raniry.ac.id']
-@elearning.route('/manual-register', methods=['POST', 'GET'])
-def register():
-    if request.method == 'POST':
-        firstname = request.form['firstname']
-        lastname = request.form['lastname']
-        email = request.form['email']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
-        user_level = None
-        
-        if (firstname.replace(' ', '') or lastname.replace(' ', '') or email or password) == '':
-            flash('Semua field wajib diisi!')
-            return redirect(url_for('register'))
-        
-        _, email_domain = email.split('@')
-        for i in range(len(user_email_domain)):
-            if email_domain == user_email_domain[i]:
-                if i == 0:
-                    user_level = 1
-                elif i == 1:
-                    user_level = 2
-                break
-        
-        if User.query.filter_by(email=email).first():
-            flash('Email sudah terdaftar coba yang lain')
-            return redirect(url_for('register'))
-
-        if user_level == None:
-            flash('Email tidak diizinkan')
-            return redirect(url_for('register'))
-            
-        if (password != confirm_password) or (len(password) != len(confirm_password)):
-            flash('Password harus sama')
-            return redirect(url_for('register'))
-        
-        new_user = User(firstname=firstname, lastname=lastname, email=email, user_level=user_level)
-        new_user.hash_password()
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Register Berhasil, register another email!')
-        return redirect(url_for('register'))
-
-    return render_template('register.html')
-
 db.create_all()
 
 api = Api(elearning, errors=errors)
 
 
 from elearning.resources.routes import initialize_routes
-from elearning.models import User
+from elearning.models import User, Class
 
+
+@elearning.route('/manual/classes/arsifkan/<int:class_id>')
+def arsipkan(class_id):
+    current_class = Class.query.get(class_id)
+    if current_class.archived == True:
+        current_class.archived = False
+        db.session.commit()
+    else:
+        current_class.archived = True
+        db.session.commit()
+        
+    return redirect(url_for('semua_class'))
+
+
+@elearning.route('/manual/classes')
+def semua_class():
+    active_classes = []
+    archived_classes = []
+
+    for cls in Class.query.all():
+        if cls.archived == False:
+            _active = {}
+            _active['Classname'] = cls.classname
+            _active['class_id'] = cls.class_id
+            active_classes.append(_active)
+        if cls.archived == True:
+            _archive = {}
+            _archive['Classname'] = cls.classname
+            _archive['class_id'] = cls.class_id
+            archived_classes.append(_archive)
+
+    return render_template('template_class.html', active_classes=active_classes, archived_classes=archived_classes)
 
 @login.user_loader
 def load_user(id):

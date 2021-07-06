@@ -33,6 +33,7 @@ class Class(db.Model):
     __tablename__ = 'classes'
     class_id = db.Column(db.Integer, primary_key=True)
     classname = db.Column(db.String(128),unique=True)
+    archived = db.Column(db.Boolean, default=False)
     theories = db.relationship('Theory', backref='classes', lazy=True)
     tasks = db.relationship("Tasks", backref='classes', lazy=True)
     users = db.relationship("User", secondary=user_identifier, backref=db.backref('classes', lazy='dynamic'))
