@@ -16,5 +16,8 @@
             <a href="/manual/classes/arsifkan/{{archived_class.class_id}}">Tampilkan</a>
         {% endfor %}
     </div>
+    <div>
+        <button style="background-color: gray;"><a style="color: black;" href="{{ url_for('logout') }}">Keluar</a></button>
+    </div>
 
 {% endblock %}
