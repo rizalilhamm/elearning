@@ -88,28 +88,27 @@ class LoginResource(Resource):
             })
 
 
-        if request.method == 'POST':
-            if ('email' not in request.form) or ('password' not in request.form):
-                return jsonify({
-                    'Message': 'Email and Password are required!',
-                    'Status': 400
-                })
-            email = request.form['email']
-            password = request.form['password']
-
-            user = User.query.filter_by(email=email).first()
-            if not user or not user.check_password(password):
-                return jsonify({
-                    'Message': 'invalid email or password!',
-                    'Status': 400
-                })
-            
-            login_user(user)
+        # if request.method == 'POST':
+            # if ('email' not in request.form) or ('password' not in request.form):
+                # return jsonify({
+                    # 'Message': 'Email and Password are required!',
+                    # 'Status': 400
+                # })
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        if not user or not user.check_password(password):
             return jsonify({
-                    'User_id': user.id,
-                    'Username': user.firstname + ' ' + user.lastname,
-                    'Status': 200
+                'Message': 'invalid email or password!',
+                'Status': 400
             })
+        
+        login_user(user)
+        return jsonify({
+                'User_id': user.id,
+                'Username': user.firstname + ' ' + user.lastname,
+                'Status': 200
+        })
 
     def get(self):
         return jsonify({
